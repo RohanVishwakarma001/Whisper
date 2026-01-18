@@ -4,7 +4,7 @@ import authRoutes from "./routes/authRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import messageRoutes from "./routes/messageRoutes";
 import userRoutes from "./routes/userRoutes";
-import { errorHandler } from "./middleware/erroeHandler";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 

@@ -32,18 +32,27 @@ export const authCallback = async (
     if (!clerkId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    let user = await User.findOne({ clerkId });
-    if (!user) {
-      const clerkUser = await clerkClient.users.getUser(clerkId);
-      user = await User.create({
-        clerkId,
-        name: clerkUser.firstName
-          ? `${clerkUser.firstName} ${clerkUser.lastName}`.trim()
-          : clerkUser.username?.trim(),
-        email: clerkUser.emailAddresses[0]?.emailAddress,
-        avatar: clerkUser.imageUrl,
-      });
-    }
+
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+
+    const user = await User.findOneAndUpdate(
+      { clerkId },
+      {
+        $setOnInsert: {
+          clerkId,
+          name: clerkUser.firstName
+            ? `${clerkUser.firstName} ${clerkUser.lastName || ""}`.trim()
+            : clerkUser.username?.trim(),
+          email: clerkUser.emailAddresses[0]?.emailAddress,
+          avatar: clerkUser.imageUrl,
+        },
+      },
+      {
+        new: true,
+        upsert: true, // ⭐ this is the key
+      },
+    );
+
     return res.status(200).json(user);
   } catch (error) {
     res.status(500);
